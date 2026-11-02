@@ -7,6 +7,7 @@
         content="width=device-width, initial-scale=1">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
+
   <meta name="apple-mobile-web-app-status-bar-style"
         content="black-translucent">
 
@@ -37,7 +38,7 @@
     }
 
     #hora {
-      font-size: 24vh;
+      font-size: 27vh;
       font-weight: 700;
       line-height: 1.05;
       letter-spacing: -0.5vw;
@@ -45,7 +46,7 @@
 
     #data {
       margin-top: 0.5vh;
-      font-size: 3.5vh;
+      font-size: 3.8vh;
       color: #b6bdd2;
     }
 
@@ -55,7 +56,7 @@
     }
 
     #temperatura {
-      font-size: 9vh;
+      font-size: 10vh;
       font-weight: 700;
       vertical-align: middle;
     }
@@ -63,14 +64,14 @@
     #descricao {
       display: inline-block;
       margin-left: 2vw;
-      font-size: 3.5vh;
+      font-size: 3.8vh;
       color: #cbd0df;
       vertical-align: middle;
     }
 
     #extremos {
       margin-top: 0.3vh;
-      font-size: 3.4vh;
+      font-size: 3.6vh;
       color: #cbd0df;
     }
 
@@ -82,11 +83,13 @@
       color: #91ccff;
     }
 
+    /* Painel de previsão reduzido e centralizado */
     #painel {
-      margin-top: 2.5vh;
-      padding: 2vh 1vw 1vh;
+      width: 70%;
+      margin: 2.5vh auto 0;
+      padding: 1.4vh 0.7vw 0.7vh;
       background: #282d4b;
-      border-radius: 2vw;
+      border-radius: 1.4vw;
     }
 
     #horas {
@@ -102,28 +105,28 @@
     }
 
     .rotulo {
-      font-size: 3.5vh;
+      font-size: 2.45vh;
       font-weight: 700;
     }
 
     .icone {
-      height: 7vh;
-      margin: 1.2vh 0;
-      line-height: 7vh;
-      font-size: 5vh;
+      height: 4.9vh;
+      margin: 0.84vh 0;
+      line-height: 4.9vh;
+      font-size: 3.5vh;
       color: white;
     }
 
     .graus {
-      font-size: 4vh;
+      font-size: 2.8vh;
       font-weight: 700;
     }
 
     #grafico {
       display: block;
       width: 100%;
-      height: 9vh;
-      margin-top: 1vh;
+      height: 6.3vh;
+      margin-top: 0.7vh;
     }
 
     #rodape {
@@ -139,11 +142,11 @@
 
     @media screen and (orientation: portrait) {
       #hora {
-        font-size: 21vw;
+        font-size: 23vw;
       }
 
       #data {
-        font-size: 4.5vw;
+        font-size: 4.8vw;
       }
 
       #resumo {
@@ -151,15 +154,15 @@
       }
 
       #descricao {
-        font-size: 4vw;
+        font-size: 4.3vw;
       }
 
       .rotulo {
-        font-size: 4vw;
+        font-size: 2.8vw;
       }
 
       .graus {
-        font-size: 5vw;
+        font-size: 3.5vw;
       }
     }
   </style>
@@ -201,8 +204,7 @@
   </main>
 
   <script>
-    // São Paulo. Se você já usa outras coordenadas,
-    // substitua estes dois números pelos anteriores.
+    // Coordenadas de São Paulo.
     var LAT = -23.5505;
     var LON = -46.6333;
 
@@ -230,18 +232,32 @@
       var agora = new Date();
 
       elemento("hora").textContent =
-        dois(agora.getHours()) + ":" + dois(agora.getMinutes());
+        dois(agora.getHours()) + ":" +
+        dois(agora.getMinutes());
 
       var dias = [
-        "domingo", "segunda-feira", "terça-feira",
-        "quarta-feira", "quinta-feira", "sexta-feira",
+        "domingo",
+        "segunda-feira",
+        "terça-feira",
+        "quarta-feira",
+        "quinta-feira",
+        "sexta-feira",
         "sábado"
       ];
 
       var meses = [
-        "janeiro", "fevereiro", "março", "abril",
-        "maio", "junho", "julho", "agosto",
-        "setembro", "outubro", "novembro", "dezembro"
+        "janeiro",
+        "fevereiro",
+        "março",
+        "abril",
+        "maio",
+        "junho",
+        "julho",
+        "agosto",
+        "setembro",
+        "outubro",
+        "novembro",
+        "dezembro"
       ];
 
       elemento("data").textContent =
@@ -255,7 +271,6 @@
         dois(agora.getDate()) + "T" +
         dois(agora.getHours());
 
-      // Renova também na mudança de hora e à meia-noite.
       if (chave !== ultimaHora) {
         ultimaHora = chave;
         atualizarClima();
@@ -278,32 +293,53 @@
       }
 
       if (codigo === 3) {
-        return { icone: "☁", texto: "Nublado" };
+        return {
+          icone: "☁",
+          texto: "Nublado"
+        };
       }
 
       if (codigo === 45 || codigo === 48) {
-        return { icone: "≋", texto: "Neblina" };
+        return {
+          icone: "≋",
+          texto: "Neblina"
+        };
       }
 
       if (codigo >= 51 && codigo <= 57) {
-        return { icone: "☂", texto: "Garoa" };
+        return {
+          icone: "☂",
+          texto: "Garoa"
+        };
       }
 
       if ((codigo >= 61 && codigo <= 67) ||
           (codigo >= 80 && codigo <= 82)) {
-        return { icone: "☂", texto: "Chuva" };
+        return {
+          icone: "☂",
+          texto: "Chuva"
+        };
       }
 
       if ((codigo >= 71 && codigo <= 77) ||
           codigo === 85 || codigo === 86) {
-        return { icone: "❄", texto: "Neve" };
+        return {
+          icone: "❄",
+          texto: "Neve"
+        };
       }
 
       if (codigo >= 95) {
-        return { icone: "ϟ", texto: "Tempestade" };
+        return {
+          icone: "ϟ",
+          texto: "Tempestade"
+        };
       }
 
-      return { icone: "—", texto: "Previsão" };
+      return {
+        icone: "—",
+        texto: "Previsão"
+      };
     }
 
     function mostrarHoras(lista) {
@@ -318,11 +354,16 @@
 
         html +=
           '<div class="coluna">' +
-            '<div class="rotulo">' + item.rotulo + '</div>' +
-            '<div class="icone" title="' + clima.texto + '">' +
+            '<div class="rotulo">' +
+              item.rotulo +
+            '</div>' +
+            '<div class="icone" title="' +
+              clima.texto + '">' +
               clima.icone +
             '</div>' +
-            '<div class="graus">' + graus(item.temp) + '</div>' +
+            '<div class="graus">' +
+              graus(item.temp) +
+            '</div>' +
           '</div>';
       }
 
@@ -356,14 +397,13 @@
         max = Math.max(max, pontos[i].temp);
       }
 
-      // Evita exagerar oscilações muito pequenas.
       var centro = (max + min) / 2;
       var faixa = Math.max(max - min + 2, 6);
 
       min = centro - faixa / 2;
       max = centro + faixa / 2;
 
-      var margem = 9;
+      var margem = 6;
       var coordenadas = [];
 
       for (i = 0; i < pontos.length; i++) {
@@ -379,13 +419,17 @@
       ctx.moveTo(coordenadas[0].x, altura);
 
       for (i = 0; i < coordenadas.length; i++) {
-        ctx.lineTo(coordenadas[i].x, coordenadas[i].y);
+        ctx.lineTo(
+          coordenadas[i].x,
+          coordenadas[i].y
+        );
       }
 
       ctx.lineTo(
         coordenadas[coordenadas.length - 1].x,
         altura
       );
+
       ctx.closePath();
       ctx.fillStyle = "rgba(145, 204, 255, 0.12)";
       ctx.fill();
@@ -394,23 +438,33 @@
 
       for (i = 0; i < coordenadas.length; i++) {
         if (i === 0) {
-          ctx.moveTo(coordenadas[i].x, coordenadas[i].y);
+          ctx.moveTo(
+            coordenadas[i].x,
+            coordenadas[i].y
+          );
         } else {
-          ctx.lineTo(coordenadas[i].x, coordenadas[i].y);
+          ctx.lineTo(
+            coordenadas[i].x,
+            coordenadas[i].y
+          );
         }
       }
 
       ctx.strokeStyle = "#91ccff";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
       for (i = 0; i < coordenadas.length; i++) {
         ctx.beginPath();
+
         ctx.arc(
           coordenadas[i].x,
           coordenadas[i].y,
-          4, 0, Math.PI * 2
+          3,
+          0,
+          Math.PI * 2
         );
+
         ctx.fillStyle = "#ffffff";
         ctx.fill();
       }
@@ -440,6 +494,7 @@
 
       function falha() {
         consultando = false;
+
         elemento("status").textContent =
           "Falha ao atualizar · tentando novamente em 10 min";
       }
@@ -492,7 +547,6 @@
             if (horas.time[i] > agoraSegundos &&
                 typeof horas.temperature_2m[i] === "number") {
 
-              // Usa o fuso retornado pela API.
               var horario = new Date(
                 (horas.time[i] + dados.utc_offset_seconds) * 1000
               );
