@@ -2,185 +2,543 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Relógio</title>
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent">
+
+  <title>Relógio e previsão</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
-  margin: 0;
-  height: 100%;
-  background: #000;
-  color: #fff;
-  font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-}
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #10131f;
+      color: #f5f6fa;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+    }
 
-main {
-  height: 100%;
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  flex-direction: column;
-  -webkit-box-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  justify-content: center;
-  gap: 20px;
-  text-align: center;
-  padding: 20px;
-}
+    main {
+      width: 100%;
+      height: 100%;
+      padding: 2vh 4vw;
+      text-align: center;
+    }
 
-#hora {
-  font-size: 24vw;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -2px;
-}
+    #hora {
+      font-size: 24vh;
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.5vw;
+    }
 
-#data {
-  font-size: 5vw;
-  color: #9aa0a6;
-  font-weight: 500;
-}
+    #data {
+      margin-top: 0.5vh;
+      font-size: 3.5vh;
+      color: #b6bdd2;
+    }
 
-#clima {
-  font-size: 10vw;
-  font-weight: 700;
-  line-height: 1.1;
-}
+    #resumo {
+      margin-top: 1.5vh;
+      white-space: nowrap;
+    }
 
-#descricao {
-  display: block;
-  font-size: 4vw;
-  color: #9aa0a6;
-  font-weight: 400;
-  margin-top: 8px;
-}
+    #temperatura {
+      font-size: 9vh;
+      font-weight: 700;
+      vertical-align: middle;
+    }
 
-#atualizado {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  font-size: 14px;
-  color: #555;
-}
+    #descricao {
+      display: inline-block;
+      margin-left: 2vw;
+      font-size: 3.5vh;
+      color: #cbd0df;
+      vertical-align: middle;
+    }
 
-#ativar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  color: #fff;
-  font-size: 24px;
-  border: 0;
-}
+    #extremos {
+      margin-top: 0.3vh;
+      font-size: 3.4vh;
+      color: #cbd0df;
+    }
+
+    .maxima {
+      color: #ffbc85;
+    }
+
+    .minima {
+      color: #91ccff;
+    }
+
+    #painel {
+      margin-top: 2.5vh;
+      padding: 2vh 1vw 1vh;
+      background: #282d4b;
+      border-radius: 2vw;
+    }
+
+    #horas {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .coluna {
+      display: table-cell;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    .rotulo {
+      font-size: 3.5vh;
+      font-weight: 700;
+    }
+
+    .icone {
+      height: 7vh;
+      margin: 1.2vh 0;
+      line-height: 7vh;
+      font-size: 5vh;
+      color: white;
+    }
+
+    .graus {
+      font-size: 4vh;
+      font-weight: 700;
+    }
+
+    #grafico {
+      display: block;
+      width: 100%;
+      height: 9vh;
+      margin-top: 1vh;
+    }
+
+    #rodape {
+      margin-top: 1vh;
+      font-size: 1.8vh;
+      color: #949db7;
+    }
+
+    #rodape a {
+      color: #949db7;
+      text-decoration: none;
+    }
+
+    @media screen and (orientation: portrait) {
+      #hora {
+        font-size: 21vw;
+      }
+
+      #data {
+        font-size: 4.5vw;
+      }
+
+      #resumo {
+        margin-top: 3vh;
+      }
+
+      #descricao {
+        font-size: 4vw;
+      }
+
+      .rotulo {
+        font-size: 4vw;
+      }
+
+      .graus {
+        font-size: 5vw;
+      }
+    }
   </style>
 </head>
+
 <body>
   <main>
     <div id="hora">--:--</div>
-    <div id="data">Carregando…</div>
-    <div id="clima">
+    <div id="data">Carregando...</div>
+
+    <div id="resumo">
       <span id="temperatura">--°</span>
-      <span id="descricao"></span>
+      <span id="descricao">Consultando previsão...</span>
+    </div>
+
+    <div id="extremos">
+      Hoje:
+      <span class="maxima">
+        Máx. <span id="maxima">--°</span>
+      </span>
+      &nbsp; · &nbsp;
+      <span class="minima">
+        Mín. <span id="minima">--°</span>
+      </span>
+    </div>
+
+    <div id="painel">
+      <div id="horas"></div>
+      <canvas id="grafico"></canvas>
+    </div>
+
+    <div id="rodape">
+      <span id="status">Carregando previsão</span>
+      · Dados:
+      <a href="https://open-meteo.com/" target="_blank">
+        Open-Meteo
+      </a>
     </div>
   </main>
 
-  <div id="atualizado"></div>
-  <button id="ativar">Toque para manter a tela ligada</button>
-
   <script>
-    // Coordenadas de São Paulo. Troque depois se quiser outra cidade.
-    const LAT = -23.5505;
-    const LON = -46.6333;
+    // São Paulo. Se você já usa outras coordenadas,
+    // substitua estes dois números pelos anteriores.
+    var LAT = -23.5505;
+    var LON = -46.6333;
 
-    const horaEl = document.getElementById('hora');
-    const dataEl = document.getElementById('data');
-    const tempEl = document.getElementById('temperatura');
-    const descEl = document.getElementById('descricao');
-    const atualizadoEl = document.getElementById('atualizado');
-    const ativarEl = document.getElementById('ativar');
+    var pontos = [];
+    var consultando = false;
+    var ultimaHora = "";
+
+    function elemento(id) {
+      return document.getElementById(id);
+    }
+
+    function dois(n) {
+      return n < 10 ? "0" + n : "" + n;
+    }
+
+    function graus(valor) {
+      if (typeof valor !== "number" || !isFinite(valor)) {
+        return "--°";
+      }
+
+      return Math.round(valor) + "°";
+    }
 
     function atualizarRelogio() {
-      const agora = new Date();
+      var agora = new Date();
 
-      horaEl.textContent = agora.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      elemento("hora").textContent =
+        dois(agora.getHours()) + ":" + dois(agora.getMinutes());
 
-      dataEl.textContent = agora.toLocaleDateString('pt-BR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-      });
+      var dias = [
+        "domingo", "segunda-feira", "terça-feira",
+        "quarta-feira", "quinta-feira", "sexta-feira",
+        "sábado"
+      ];
+
+      var meses = [
+        "janeiro", "fevereiro", "março", "abril",
+        "maio", "junho", "julho", "agosto",
+        "setembro", "outubro", "novembro", "dezembro"
+      ];
+
+      elemento("data").textContent =
+        dias[agora.getDay()] + ", " +
+        agora.getDate() + " de " +
+        meses[agora.getMonth()];
+
+      var chave =
+        agora.getFullYear() + "-" +
+        dois(agora.getMonth() + 1) + "-" +
+        dois(agora.getDate()) + "T" +
+        dois(agora.getHours());
+
+      // Renova também na mudança de hora e à meia-noite.
+      if (chave !== ultimaHora) {
+        ultimaHora = chave;
+        atualizarClima();
+      }
     }
 
-    async function atualizarClima() {
-      try {
-        const url =
-          'https://api.open-meteo.com/v1/forecast' +
-          '?latitude=' + LAT +
-          '&longitude=' + LON +
-          '&current=temperature_2m,weather_code' +
-          '&timezone=America%2FSao_Paulo';
-
-        const resposta = await fetch(url);
-        const dados = await resposta.json();
-
-        tempEl.textContent =
-          Math.round(dados.current.temperature_2m) + '°';
-
-        const codigos = {
-          0: 'Céu limpo',
-          1: 'Predominantemente limpo',
-          2: 'Parcialmente nublado',
-          3: 'Nublado',
-          45: 'Neblina',
-          51: 'Garoa leve',
-          53: 'Garoa',
-          55: 'Garoa forte',
-          61: 'Chuva leve',
-          63: 'Chuva',
-          65: 'Chuva forte',
-          80: 'Pancadas leves',
-          81: 'Pancadas',
-          82: 'Pancadas fortes',
-          95: 'Tempestade'
+    function condicao(codigo, dia) {
+      if (codigo === 0) {
+        return {
+          icone: dia ? "☀" : "☾",
+          texto: dia ? "Céu limpo" : "Noite limpa"
         };
+      }
 
-        descEl.textContent =
-          codigos[dados.current.weather_code] || '';
+      if (codigo === 1 || codigo === 2) {
+        return {
+          icone: dia ? "⛅" : "☁",
+          texto: "Poucas nuvens"
+        };
+      }
 
-        atualizadoEl.textContent =
-          'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
-      } catch (erro) {
-        descEl.textContent = 'Sem conexão';
+      if (codigo === 3) {
+        return { icone: "☁", texto: "Nublado" };
+      }
+
+      if (codigo === 45 || codigo === 48) {
+        return { icone: "≋", texto: "Neblina" };
+      }
+
+      if (codigo >= 51 && codigo <= 57) {
+        return { icone: "☂", texto: "Garoa" };
+      }
+
+      if ((codigo >= 61 && codigo <= 67) ||
+          (codigo >= 80 && codigo <= 82)) {
+        return { icone: "☂", texto: "Chuva" };
+      }
+
+      if ((codigo >= 71 && codigo <= 77) ||
+          codigo === 85 || codigo === 86) {
+        return { icone: "❄", texto: "Neve" };
+      }
+
+      if (codigo >= 95) {
+        return { icone: "ϟ", texto: "Tempestade" };
+      }
+
+      return { icone: "—", texto: "Previsão" };
+    }
+
+    function mostrarHoras(lista) {
+      pontos = lista;
+
+      var html = "";
+      var i;
+
+      for (i = 0; i < lista.length; i++) {
+        var item = lista[i];
+        var clima = condicao(item.codigo, item.dia);
+
+        html +=
+          '<div class="coluna">' +
+            '<div class="rotulo">' + item.rotulo + '</div>' +
+            '<div class="icone" title="' + clima.texto + '">' +
+              clima.icone +
+            '</div>' +
+            '<div class="graus">' + graus(item.temp) + '</div>' +
+          '</div>';
+      }
+
+      elemento("horas").innerHTML = html;
+      desenharGrafico();
+    }
+
+    function desenharGrafico() {
+      var canvas = elemento("grafico");
+      var largura = canvas.clientWidth;
+      var altura = canvas.clientHeight;
+
+      if (!largura || !altura || pontos.length < 2) {
+        return;
+      }
+
+      var escala = window.devicePixelRatio || 1;
+
+      canvas.width = Math.round(largura * escala);
+      canvas.height = Math.round(altura * escala);
+
+      var ctx = canvas.getContext("2d");
+      ctx.scale(escala, escala);
+
+      var min = Infinity;
+      var max = -Infinity;
+      var i;
+
+      for (i = 0; i < pontos.length; i++) {
+        min = Math.min(min, pontos[i].temp);
+        max = Math.max(max, pontos[i].temp);
+      }
+
+      // Evita exagerar oscilações muito pequenas.
+      var centro = (max + min) / 2;
+      var faixa = Math.max(max - min + 2, 6);
+
+      min = centro - faixa / 2;
+      max = centro + faixa / 2;
+
+      var margem = 9;
+      var coordenadas = [];
+
+      for (i = 0; i < pontos.length; i++) {
+        coordenadas.push({
+          x: largura * (i + 0.5) / pontos.length,
+          y: margem +
+            (max - pontos[i].temp) / (max - min) *
+            (altura - margem * 2)
+        });
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(coordenadas[0].x, altura);
+
+      for (i = 0; i < coordenadas.length; i++) {
+        ctx.lineTo(coordenadas[i].x, coordenadas[i].y);
+      }
+
+      ctx.lineTo(
+        coordenadas[coordenadas.length - 1].x,
+        altura
+      );
+      ctx.closePath();
+      ctx.fillStyle = "rgba(145, 204, 255, 0.12)";
+      ctx.fill();
+
+      ctx.beginPath();
+
+      for (i = 0; i < coordenadas.length; i++) {
+        if (i === 0) {
+          ctx.moveTo(coordenadas[i].x, coordenadas[i].y);
+        } else {
+          ctx.lineTo(coordenadas[i].x, coordenadas[i].y);
+        }
+      }
+
+      ctx.strokeStyle = "#91ccff";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      for (i = 0; i < coordenadas.length; i++) {
+        ctx.beginPath();
+        ctx.arc(
+          coordenadas[i].x,
+          coordenadas[i].y,
+          4, 0, Math.PI * 2
+        );
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
       }
     }
 
-    async function manterLigado() {
-      try {
-        await navigator.wakeLock.request('screen');
-      } catch (erro) {
-        // Se o iPad não permitir, o ajuste de Bloqueio Automático resolve.
+    function atualizarClima() {
+      if (consultando) {
+        return;
       }
-      ativarEl.remove();
+
+      consultando = true;
+
+      var url =
+        "https://api.open-meteo.com/v1/forecast" +
+        "?latitude=" + LAT +
+        "&longitude=" + LON +
+        "&current=temperature_2m,weather_code,is_day" +
+        "&hourly=temperature_2m,weather_code,is_day" +
+        "&daily=temperature_2m_max,temperature_2m_min" +
+        "&timezone=America%2FSao_Paulo" +
+        "&timeformat=unixtime" +
+        "&forecast_days=2";
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.timeout = 20000;
+
+      function falha() {
+        consultando = false;
+        elemento("status").textContent =
+          "Falha ao atualizar · tentando novamente em 10 min";
+      }
+
+      xhr.onload = function() {
+        consultando = false;
+
+        if (xhr.status !== 200) {
+          falha();
+          return;
+        }
+
+        try {
+          var dados = JSON.parse(xhr.responseText);
+          var atual = dados.current;
+
+          if (typeof atual.temperature_2m !== "number") {
+            throw new Error("Temperatura indisponível");
+          }
+
+          var clima = condicao(
+            atual.weather_code,
+            atual.is_day
+          );
+
+          elemento("temperatura").textContent =
+            graus(atual.temperature_2m);
+
+          elemento("descricao").textContent =
+            clima.icone + " " + clima.texto;
+
+          elemento("maxima").textContent =
+            graus(dados.daily.temperature_2m_max[0]);
+
+          elemento("minima").textContent =
+            graus(dados.daily.temperature_2m_min[0]);
+
+          var lista = [{
+            rotulo: "Agora",
+            temp: atual.temperature_2m,
+            codigo: atual.weather_code,
+            dia: atual.is_day
+          }];
+
+          var agoraSegundos = new Date().getTime() / 1000;
+          var horas = dados.hourly;
+          var i;
+
+          for (i = 0; i < horas.time.length; i++) {
+            if (horas.time[i] > agoraSegundos &&
+                typeof horas.temperature_2m[i] === "number") {
+
+              // Usa o fuso retornado pela API.
+              var horario = new Date(
+                (horas.time[i] + dados.utc_offset_seconds) * 1000
+              );
+
+              lista.push({
+                rotulo: dois(horario.getUTCHours()),
+                temp: horas.temperature_2m[i],
+                codigo: horas.weather_code[i],
+                dia: horas.is_day[i]
+              });
+
+              if (lista.length === 6) {
+                break;
+              }
+            }
+          }
+
+          mostrarHoras(lista);
+
+          var agora = new Date();
+
+          elemento("status").textContent =
+            "Atualizado às " +
+            dois(agora.getHours()) + ":" +
+            dois(agora.getMinutes());
+
+        } catch (erro) {
+          falha();
+        }
+      };
+
+      xhr.onerror = falha;
+      xhr.ontimeout = falha;
+      xhr.send();
     }
 
-    ativarEl.addEventListener('click', manterLigado);
+    window.addEventListener("resize", desenharGrafico);
+
+    document.addEventListener("visibilitychange", function() {
+      if (!document.hidden) {
+        atualizarRelogio();
+        atualizarClima();
+      }
+    });
 
     atualizarRelogio();
-    atualizarClima();
 
     setInterval(atualizarRelogio, 1000);
     setInterval(atualizarClima, 10 * 60 * 1000);
