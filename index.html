@@ -1,5 +1,14 @@
-css
-html, body {
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Relógio</title>
+
+  <style>
+    html, body {
   margin: 0;
   height: 100%;
   background: #000;
@@ -74,3 +83,107 @@ main {
   font-size: 24px;
   border: 0;
 }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="hora">--:--</div>
+    <div id="data">Carregando…</div>
+    <div id="clima">
+      <span id="temperatura">--°</span>
+      <span id="descricao"></span>
+    </div>
+  </main>
+
+  <div id="atualizado"></div>
+  <button id="ativar">Toque para manter a tela ligada</button>
+
+  <script>
+    // Coordenadas de São Paulo. Troque depois se quiser outra cidade.
+    const LAT = -23.5505;
+    const LON = -46.6333;
+
+    const horaEl = document.getElementById('hora');
+    const dataEl = document.getElementById('data');
+    const tempEl = document.getElementById('temperatura');
+    const descEl = document.getElementById('descricao');
+    const atualizadoEl = document.getElementById('atualizado');
+    const ativarEl = document.getElementById('ativar');
+
+    function atualizarRelogio() {
+      const agora = new Date();
+
+      horaEl.textContent = agora.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      dataEl.textContent = agora.toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      });
+    }
+
+    async function atualizarClima() {
+      try {
+        const url =
+          'https://api.open-meteo.com/v1/forecast' +
+          '?latitude=' + LAT +
+          '&longitude=' + LON +
+          '&current=temperature_2m,weather_code' +
+          '&timezone=America%2FSao_Paulo';
+
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+
+        tempEl.textContent =
+          Math.round(dados.current.temperature_2m) + '°';
+
+        const codigos = {
+          0: 'Céu limpo',
+          1: 'Predominantemente limpo',
+          2: 'Parcialmente nublado',
+          3: 'Nublado',
+          45: 'Neblina',
+          51: 'Garoa leve',
+          53: 'Garoa',
+          55: 'Garoa forte',
+          61: 'Chuva leve',
+          63: 'Chuva',
+          65: 'Chuva forte',
+          80: 'Pancadas leves',
+          81: 'Pancadas',
+          82: 'Pancadas fortes',
+          95: 'Tempestade'
+        };
+
+        descEl.textContent =
+          codigos[dados.current.weather_code] || '';
+
+        atualizadoEl.textContent =
+          'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
+      } catch (erro) {
+        descEl.textContent = 'Sem conexão';
+      }
+    }
+
+    async function manterLigado() {
+      try {
+        await navigator.wakeLock.request('screen');
+      } catch (erro) {
+        // Se o iPad não permitir, o ajuste de Bloqueio Automático resolve.
+      }
+      ativarEl.remove();
+    }
+
+    ativarEl.addEventListener('click', manterLigado);
+
+    atualizarRelogio();
+    atualizarClima();
+
+    setInterval(atualizarRelogio, 1000);
+    setInterval(atualizarClima, 10 * 60 * 1000);
+  </script>
+</body>
+</html>
