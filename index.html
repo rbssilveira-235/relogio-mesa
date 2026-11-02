@@ -1,174 +1,75 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Relógio</title>
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
 
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: #000;
-      color: #fff;
-      font-family: -apple-system, Arial, sans-serif;
-      overflow: hidden;
-      user-select: none;
-      -webkit-user-select: none;
-    }
+main {
+  height: 100%;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  flex-direction: column;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  padding: 20px;
+}
 
-    main {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2vh;
-      text-align: center;
-      padding: 16px;
-    }
+#hora {
+  font-size: 24vw;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -2px;
+}
 
-    #hora {
-      font-size: min(24vw, 34vh);
-      font-weight: 700;
-      line-height: 1;
-    }
+#data {
+  font-size: 5vw;
+  color: #9aa0a6;
+  font-weight: 500;
+}
 
-    #data {
-      font-size: min(5vw, 6vh);
-      color: #9aa0a6;
-    }
+#clima {
+  font-size: 10vw;
+  font-weight: 700;
+  line-height: 1.1;
+}
 
-    #clima {
-      font-size: min(9vw, 13vh);
-      font-weight: 700;
-    }
+#descricao {
+  display: block;
+  font-size: 4vw;
+  color: #9aa0a6;
+  font-weight: 400;
+  margin-top: 8px;
+}
 
-    #descricao {
-      font-size: min(4vw, 5vh);
-      color: #9aa0a6;
-      font-weight: 400;
-    }
+#atualizado {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  font-size: 14px;
+  color: #555;
+}
 
-    #atualizado {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      font-size: 13px;
-      color: #555;
-    }
-
-    #ativar {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      color: #fff;
-      font-size: 22px;
-      border: 0;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <div id="hora">--:--</div>
-    <div id="data">Carregando…</div>
-    <div id="clima">
-      <span id="temperatura">--°</span>
-      <span id="descricao"></span>
-    </div>
-  </main>
-
-  <div id="atualizado"></div>
-  <button id="ativar">Toque para manter a tela ligada</button>
-
-  <script>
-    // Coordenadas de São Paulo. Troque depois se quiser outra cidade.
-    const LAT = -23.5505;
-    const LON = -46.6333;
-
-    const horaEl = document.getElementById('hora');
-    const dataEl = document.getElementById('data');
-    const tempEl = document.getElementById('temperatura');
-    const descEl = document.getElementById('descricao');
-    const atualizadoEl = document.getElementById('atualizado');
-    const ativarEl = document.getElementById('ativar');
-
-    function atualizarRelogio() {
-      const agora = new Date();
-
-      horaEl.textContent = agora.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      dataEl.textContent = agora.toLocaleDateString('pt-BR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-      });
-    }
-
-    async function atualizarClima() {
-      try {
-        const url =
-          'https://api.open-meteo.com/v1/forecast' +
-          '?latitude=' + LAT +
-          '&longitude=' + LON +
-          '&current=temperature_2m,weather_code' +
-          '&timezone=America%2FSao_Paulo';
-
-        const resposta = await fetch(url);
-        const dados = await resposta.json();
-
-        tempEl.textContent =
-          Math.round(dados.current.temperature_2m) + '°';
-
-        const codigos = {
-          0: 'Céu limpo',
-          1: 'Predominantemente limpo',
-          2: 'Parcialmente nublado',
-          3: 'Nublado',
-          45: 'Neblina',
-          51: 'Garoa leve',
-          53: 'Garoa',
-          55: 'Garoa forte',
-          61: 'Chuva leve',
-          63: 'Chuva',
-          65: 'Chuva forte',
-          80: 'Pancadas leves',
-          81: 'Pancadas',
-          82: 'Pancadas fortes',
-          95: 'Tempestade'
-        };
-
-        descEl.textContent =
-          codigos[dados.current.weather_code] || '';
-
-        atualizadoEl.textContent =
-          'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
-      } catch (erro) {
-        descEl.textContent = 'Sem conexão';
-      }
-    }
-
-    async function manterLigado() {
-      try {
-        await navigator.wakeLock.request('screen');
-      } catch (erro) {
-        // Se o iPad não permitir, o ajuste de Bloqueio Automático resolve.
-      }
-      ativarEl.remove();
-    }
-
-    ativarEl.addEventListener('click', manterLigado);
-
-    atualizarRelogio();
-    atualizarClima();
-
-    setInterval(atualizarRelogio, 1000);
-    setInterval(atualizarClima, 10 * 60 * 1000);
-  </script>
-</body>
-</html>
+#ativar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-size: 24px;
+  border: 0;
+}
